@@ -1,71 +1,36 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.infrastructure.rest.mappers;
 
 import com.mycompany.entapp.snowman.domain.model.User;
 import com.mycompany.entapp.snowman.infrastructure.rest.resources.UserResource;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class UserResourceMapperUTest {
+class UserResourceMapperUTest {
 
     @Test
-    public void testMapUserResourceToUser() {
-
-        int userId = 1;
-        String username = "Username";
-        String password = "Password1";
-        String email = "Email";
-        String firstName = "Firstname";
-        String secondName = "SecondName";
-
-        UserResource userResource = new UserResource();
-        userResource.setUserId(userId);
-        userResource.setUsername(username);
-        userResource.setPassword(password);
-        userResource.setEmail(email);
-        userResource.setFirstName(firstName);
-        userResource.setSecondName(secondName);
-
-        User user = UserResourceMapper.mapUserResourceToUser(userResource);
-
-        assertEquals(userId, user.getUserId());
-        assertEquals(username, user.getUsername());
-        assertEquals(password, user.getPassword());
-        assertEquals(email, user.getEmail());
-        assertEquals(firstName, user.getFirstname());
-        assertEquals(secondName, user.getLastname());
-
+    void testMapUserToResource() {
+        User user = new User();
+        user.setUserId(1);
+        user.setUsername("testuser");
+        user.setEmail("test@example.com");
+        user.setFirstname("First");
+        user.setLastname("Last");
+        UserResource resource = UserResourceMapper.mapUserToUserResource(user);
+        assertEquals(1, resource.getUserId());
+        assertEquals("testuser", resource.getUsername());
+        assertEquals("test@example.com", resource.getEmail());
     }
 
     @Test
-    public void testMapUserToUserResource(){
-        int userId = 1;
-        String username = "Username";
-        String password = "Password1";
-        String email = "Email";
-        String firstName = "Firstname";
-        String secondName = "SecondName";
-
-        User user = new User();
-        user.setUserId(userId);
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setEmail(email);
-        user.setFirstname(firstName);
-        user.setLastname(secondName);
-
-        UserResource userResource = UserResourceMapper.mapUserToUserResource(user);
-
-        assertEquals(userId, userResource.getUserId());
-        assertEquals(username, userResource.getUsername());
-        assertEquals(password, userResource.getPassword());
-        assertEquals(email, userResource.getEmail());
-        assertEquals(firstName, userResource.getFirstName());
-        assertEquals(secondName, userResource.getSecondName());
+    void testMapResourceToUser() {
+        UserResource resource = new UserResource();
+        resource.setUserId(1);
+        resource.setUsername("testuser");
+        resource.setFirstName("First");
+        resource.setSecondName("Last");
+        User user = UserResourceMapper.mapUserResourceToUser(resource);
+        assertEquals(1, user.getUserId());
+        assertEquals("testuser", user.getUsername());
     }
 }

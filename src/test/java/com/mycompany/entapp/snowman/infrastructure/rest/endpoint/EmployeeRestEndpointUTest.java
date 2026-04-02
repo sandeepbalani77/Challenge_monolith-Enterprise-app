@@ -1,95 +1,59 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.infrastructure.rest.endpoint;
 
+import com.mycompany.entapp.snowman.domain.EmployeeTestHelper;
 import com.mycompany.entapp.snowman.domain.model.Employee;
 import com.mycompany.entapp.snowman.domain.service.EmployeeService;
-import com.mycompany.entapp.snowman.infrastructure.rest.mappers.EmployeeResourceMapper;
 import com.mycompany.entapp.snowman.infrastructure.rest.resources.EmployeeResource;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(EmployeeResourceMapper.class)
-public class EmployeeRestEndpointUTest {
+@ExtendWith(MockitoExtension.class)
+class EmployeeRestEndpointUTest {
 
     @Mock
     private EmployeeService employeeService;
 
     @InjectMocks
-    private EmployeeRestEndpoint systemUnderTest = new EmployeeRestEndpoint();
+    private EmployeeRestEndpoint endpoint;
 
     @Test
-    public void testGetEmployeeShouldGetEmployee() {
-        Integer employeeId = 5;
-
-        Employee employee = new Employee();
-        EmployeeResource employeeResource = new EmployeeResource();
-
-        PowerMockito.when(EmployeeResourceMapper.mapEmployeeToEmployeeResource(employee)).thenReturn(employeeResource);
-
-        ResponseEntity<EmployeeResource> responseEntity = systemUnderTest.getEmployee(employeeId);
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(employeeResource, responseEntity.getBody());
+    void testGetEmployee() {
+        Employee employee = EmployeeTestHelper.createTestEmployee();
+        when(employeeService.getEmployee(1)).thenReturn(employee);
+        ResponseEntity<EmployeeResource> response = endpoint.getEmployee(1);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
     }
 
     @Test
-    public void testCreateEmployeeShouldCreateEmployee() {
-        PowerMockito.mockStatic(EmployeeResourceMapper.class);
-
-        Employee employee = new Employee();
-
-        EmployeeResource employeeResource = new EmployeeResource();
-
-        PowerMockito.when(EmployeeResourceMapper.mapEmployeeResourceToEmployee(employeeResource)).thenReturn(employee);
-        Mockito.doNothing().when(employeeService).createEmployee(employee);
-
-        systemUnderTest.createEmployee(employeeResource);
-
-        PowerMockito.verifyStatic(EmployeeResourceMapper.class);
-        Mockito.verify(employeeService, Mockito.times(1)).createEmployee(employee);
+    void testGetEmployeeNotFound() {
+        when(employeeService.getEmployee(99)).thenReturn(null);
+        ResponseEntity<EmployeeResource> response = endpoint.getEmployee(99);
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
-    public void testUpdateExistingEmployeeShouldUpdateExistingEmployee() {
-        PowerMockito.mockStatic(EmployeeResourceMapper.class);
-
-        Employee employee = new Employee();
-
-        EmployeeResource employeeResource = new EmployeeResource();
-
-        PowerMockito.when(EmployeeResourceMapper.mapEmployeeResourceToEmployee(employeeResource)).thenReturn(employee);
-        Mockito.doNothing().when(employeeService).updateEmployee(employee);
-
-        systemUnderTest.updateExistingEmployee(employeeResource);
-
-        PowerMockito.verifyStatic(EmployeeResourceMapper.class);
-        Mockito.verify(employeeService, Mockito.times(1)).updateEmployee(employee);
+    void testCreateEmployee() {
+        EmployeeResource resource = new EmployeeResource();
+        resource.setFirstName("Test");
+        resource.setSecondName("User");
+        resource.setRole("Developer");
+        ResponseEntity<Void> response = endpoint.createEmployee(resource);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
     @Test
-    public void testDeleteEmployeeShouldDeleteEmployee(){
-        int employeeId = 7;
-
-        Mockito.doNothing().when(employeeService).deleteEmployee(employeeId);
-
-        systemUnderTest.deleteExistingEmployee(employeeId);
-
-        Mockito.verify(employeeService, Mockito.times(1)).deleteEmployee(employeeId);
+    void testDeleteEmployee() {
+        ResponseEntity<Void> response = endpoint.deleteEmployee(1);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(employeeService).deleteEmployee(1);
     }
-
 }

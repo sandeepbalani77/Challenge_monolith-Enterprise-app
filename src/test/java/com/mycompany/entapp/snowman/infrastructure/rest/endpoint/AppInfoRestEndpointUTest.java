@@ -1,65 +1,43 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.infrastructure.rest.endpoint;
 
-import com.mycompany.entapp.snowman.domain.exception.BusinessException;
 import com.mycompany.entapp.snowman.domain.model.AppInfo;
 import com.mycompany.entapp.snowman.domain.service.ApplicationInfoService;
-import com.mycompany.entapp.snowman.infrastructure.rest.mappers.AppInfoResourceMapper;
 import com.mycompany.entapp.snowman.infrastructure.rest.resources.AppInfoResource;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({AppInfoResourceMapper.class})
-public class AppInfoRestEndpointUTest {
+@ExtendWith(MockitoExtension.class)
+class AppInfoRestEndpointUTest {
 
     @Mock
     private ApplicationInfoService applicationInfoService;
 
     @InjectMocks
-    private AppInfoRestEndpoint classUnderTest = new AppInfoRestEndpoint();
+    private AppInfoRestEndpoint endpoint;
 
     @Test
-    public void testGetApplicationInformation() throws BusinessException {
-        PowerMockito.mockStatic(AppInfoResourceMapper.class);
-
-        AppInfoResource appInfoResource = new AppInfoResource();
-        appInfoResource.setId(1);
-        appInfoResource.setVersion("1.0.0");
-
+    void testGetAppInfo() {
         AppInfo appInfo = new AppInfo();
         appInfo.setId(1);
-        appInfo.setVersion("1.0.0");
-
-        Mockito.when(applicationInfoService.getAppInfo()).thenReturn(appInfo);
-        PowerMockito.when(AppInfoResourceMapper.mapAppInfoToResource(appInfo)).thenReturn(appInfoResource);
-
-        ResponseEntity<AppInfoResource> responseEntity = classUnderTest.getApplicationInformation();
-
-        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
-        assertEquals(appInfoResource, responseEntity.getBody());
-
+        appInfo.setVersion("1.0");
+        when(applicationInfoService.getApplicationInfo()).thenReturn(appInfo);
+        ResponseEntity<AppInfoResource> response = endpoint.getAppInfo();
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("1.0", response.getBody().getVersion());
     }
 
-    @Test(expected = RuntimeException.class)
-    public void testGetApplicationInformation_throwsException() throws BusinessException {
-        Mockito.doThrow(BusinessException.class).when(applicationInfoService).getAppInfo();
-
-        classUnderTest.getApplicationInformation();
+    @Test
+    void testGetAppInfoNotFound() {
+        when(applicationInfoService.getApplicationInfo()).thenReturn(null);
+        ResponseEntity<AppInfoResource> response = endpoint.getAppInfo();
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
-
 }

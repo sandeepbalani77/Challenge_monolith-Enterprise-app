@@ -1,45 +1,40 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.repository.impl;
 
 import com.mycompany.entapp.snowman.domain.model.Client;
 import com.mycompany.entapp.snowman.domain.repository.ClientRepository;
-import com.mycompany.entapp.snowman.infrastructure.db.dao.ClientDao;
+import com.mycompany.entapp.snowman.infrastructure.db.jpa.ClientJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
-@Component
+@Repository
 public class ClientRepositoryImpl implements ClientRepository {
 
     @Autowired
-    private ClientDao clientDao;
+    private ClientJpaRepository clientJpaRepository;
 
     @Cacheable(value = "clientFindCache", key = "#clientId")
     @Override
-    public Client getClient(int clientId){
-        return clientDao.getClient(clientId);
+    public Client getClient(int clientId) {
+        return clientJpaRepository.findById(clientId).orElse(null);
     }
 
     @Override
-    public void createClient(Client client){
-        clientDao.saveClient(client);
+    public Client createClient(Client client) {
+        return clientJpaRepository.save(client);
     }
 
-    @CachePut(value = "clientFindCache", key = "#client.clientId")
+    @CachePut(value = "clientFindCache", key = "#client.id")
     @Override
-    public void updateClient(Client client){
-        clientDao.saveClient(client);
+    public Client updateClient(Client client) {
+        return clientJpaRepository.save(client);
     }
 
     @CacheEvict(value = "clientFindCache", key = "#clientId")
     @Override
-    public void deleteClient(int clientId){
-        clientDao.removeClient(clientId);
+    public void deleteClient(int clientId) {
+        clientJpaRepository.deleteById(clientId);
     }
 }

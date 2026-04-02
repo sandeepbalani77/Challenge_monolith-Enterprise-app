@@ -1,75 +1,75 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2017 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.model;
 
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
-import java.io.Serializable;
-import java.util.Date;
+import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "employee_project")
-public class EmployeeProjectV2 implements Serializable {
+public class EmployeeProjectV2 {
 
     @EmbeddedId
-    private EmployeeProjectId primaryKey = new EmployeeProjectId();
+    private EmployeeProjectId id;
 
-    @Temporal(TemporalType.DATE)
     @Column(name = "date_started")
-    private Date dateStarted;
+    private LocalDate dateStarted;
 
-    @Temporal(TemporalType.DATE)
     @Column(name = "date_ended")
-    private Date dateEnded;
+    private LocalDate dateEnded;
 
-    public Date getDateStarted() {
+    public EmployeeProjectId getId() {
+        return id;
+    }
+
+    public void setId(EmployeeProjectId id) {
+        this.id = id;
+    }
+
+    public LocalDate getDateStarted() {
         return dateStarted;
     }
 
-    public void setDateStarted(Date dateStarted) {
+    public void setDateStarted(LocalDate dateStarted) {
         this.dateStarted = dateStarted;
     }
 
-    public Date getDateEnded() {
+    public LocalDate getDateEnded() {
         return dateEnded;
     }
 
-    public void setDateEnded(Date dateEnded) {
+    public void setDateEnded(LocalDate dateEnded) {
         this.dateEnded = dateEnded;
     }
 
-    public EmployeeProjectId getPrimaryKey() {
-        return primaryKey;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EmployeeProjectV2 that = (EmployeeProjectV2) o;
+        return new EqualsBuilder()
+            .append(id, that.id)
+            .isEquals();
     }
 
-    public void setPrimaryKey(EmployeeProjectId primaryKey) {
-        this.primaryKey = primaryKey;
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37)
+            .append(id)
+            .toHashCode();
     }
 
-    @Transient
-    public Employee getEmployee() {
-        return primaryKey.getEmployee();
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this)
+            .append("id", id)
+            .append("dateStarted", dateStarted)
+            .append("dateEnded", dateEnded)
+            .toString();
     }
-
-    public void setEmployee(Employee employee) {
-        primaryKey.setEmployee(employee);
-    }
-
-    public Project getProject() {
-        return primaryKey.getProject();
-    }
-
-    public void setProject(Project project) {
-        primaryKey.setProject(project);
-    }
-
-
 }

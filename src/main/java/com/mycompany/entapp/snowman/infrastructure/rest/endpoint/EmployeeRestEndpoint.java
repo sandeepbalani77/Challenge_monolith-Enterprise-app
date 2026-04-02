@@ -1,53 +1,51 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.infrastructure.rest.endpoint;
 
 import com.mycompany.entapp.snowman.domain.model.Employee;
 import com.mycompany.entapp.snowman.domain.service.EmployeeService;
 import com.mycompany.entapp.snowman.infrastructure.rest.mappers.EmployeeResourceMapper;
 import com.mycompany.entapp.snowman.infrastructure.rest.resources.EmployeeResource;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
 @RestController
-@RequestMapping("/employee")
+@RequestMapping("/employees")
 public class EmployeeRestEndpoint {
 
     @Autowired
     private EmployeeService employeeService;
 
-    @RequestMapping(value = "/{employeeId}", method = RequestMethod.GET)
-    public ResponseEntity<EmployeeResource> getEmployee(@PathVariable Integer employeeId) {
+    @GetMapping("/{employeeId}")
+    public ResponseEntity<EmployeeResource> getEmployee(@PathVariable int employeeId) {
         Employee employee = employeeService.getEmployee(employeeId);
-        EmployeeResource employeeResource = EmployeeResourceMapper.mapEmployeeToEmployeeResource(employee);
-        return ResponseEntity.ok(employeeResource);
+        if (employee == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(EmployeeResourceMapper.mapEmployeeToEmployeeResource(employee));
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity createEmployee(@Valid EmployeeResource employeeResource) {
-        Employee employee = EmployeeResourceMapper.mapEmployeeResourceToEmployee(employeeResource);
-        employeeService.createEmployee(employee);
+    @PostMapping("/create")
+    public ResponseEntity<Void> createEmployee(@Valid @RequestBody EmployeeResource employeeResource) {
+        employeeService.createEmployee(EmployeeResourceMapper.mapEmployeeResourceToEmployee(employeeResource));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<Void> updateEmployee(@Valid @RequestBody EmployeeResource employeeResource) {
+        employeeService.updateEmployee(EmployeeResourceMapper.mapEmployeeResourceToEmployee(employeeResource));
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
-    public ResponseEntity updateExistingEmployee(@Valid EmployeeResource employeeResource){
-        Employee employee = EmployeeResourceMapper.mapEmployeeResourceToEmployee(employeeResource);
-        employeeService.updateEmployee(employee);
-        return ResponseEntity.ok().build();
-    }
-
-    @RequestMapping(value = "{employeeId}/delete", method = RequestMethod.DELETE)
-    public ResponseEntity deleteExistingEmployee(@PathVariable Integer employeeId){
+    @DeleteMapping("/{employeeId}")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable int employeeId) {
         employeeService.deleteEmployee(employeeId);
         return ResponseEntity.ok().build();
     }

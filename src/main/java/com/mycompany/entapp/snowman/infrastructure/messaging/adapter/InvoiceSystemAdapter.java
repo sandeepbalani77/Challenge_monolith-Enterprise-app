@@ -1,8 +1,3 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.infrastructure.messaging.adapter;
 
 import com.mycompany.entapp.snowman.infrastructure.messaging.InvoiceSystemPort;
@@ -12,13 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jms.core.JmsTemplate;
-import org.springframework.jms.core.MessageCreator;
 import org.springframework.stereotype.Component;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.ObjectMessage;
-import javax.jms.Session;
 
 @Component
 public class InvoiceSystemAdapter implements InvoiceSystemPort {
@@ -27,20 +16,15 @@ public class InvoiceSystemAdapter implements InvoiceSystemPort {
 
     @Autowired
     @Qualifier("invoiceJmsTemplate")
-    private JmsTemplate jmsTemplate;
+    private JmsTemplate invoiceJmsTemplate;
 
     @Override
-    public void sendProjectInfo(final ClientDTO clientDTO) {
-        LOGGER.info("Sending client info to Invoice System: {}", clientDTO);
-        jmsTemplate.send(new MessageCreator() {
-            @Override
-            public Message createMessage(Session session) throws JMSException {
-                ObjectMessage objectMessage = session.createObjectMessage(clientDTO);
-                // EIP - correlate at the other end
-                objectMessage.setJMSCorrelationID("ClientID-" + clientDTO.getClientId());
-                return objectMessage;
-            }
+    public void sendClientData(ClientDTO clientDTO) {
+        LOGGER.info("Sending client data to Invoice System: {}", clientDTO);
+        invoiceJmsTemplate.send(session -> {
+            var message = session.createObjectMessage(clientDTO);
+            message.setJMSCorrelationID("invoice-correlation-id");
+            return message;
         });
     }
-
 }

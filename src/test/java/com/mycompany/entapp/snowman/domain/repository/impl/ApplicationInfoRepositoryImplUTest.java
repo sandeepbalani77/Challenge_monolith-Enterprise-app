@@ -1,53 +1,42 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.repository.impl;
 
 import com.mycompany.entapp.snowman.domain.model.AppInfo;
-import com.mycompany.entapp.snowman.infrastructure.db.dao.ApplicationInfoDao;
-import com.mycompany.entapp.snowman.infrastructure.db.dao.impl.ApplicationInfoDaoImpl;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.mycompany.entapp.snowman.infrastructure.db.jpa.AppInfoJpaRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ApplicationInfoRepositoryImplUTest {
+@ExtendWith(MockitoExtension.class)
+class ApplicationInfoRepositoryImplUTest {
 
     @Mock
-    private ApplicationInfoDao applicationInfoDao;
+    private AppInfoJpaRepository appInfoJpaRepository;
 
     @InjectMocks
-    private ApplicationInfoRepositoryImpl classUnderTest = new ApplicationInfoRepositoryImpl();
+    private ApplicationInfoRepositoryImpl applicationInfoRepository;
 
     @Test
-    public void testInitialize_shouldInitializeDataFromDatabase() {
-
+    void testInitializeLoadsAppInfo() {
         AppInfo appInfo = new AppInfo();
         appInfo.setId(1);
-        appInfo.setVersion("1.0.0");
-
-        List<AppInfo> appInfos = new ArrayList<>();
-        appInfos.add(appInfo);
-
-        Mockito.when(applicationInfoDao.loadApplicationInfos()).thenReturn(appInfos);
-
-        classUnderTest.initialize();
-
-        Map<Integer, AppInfo> appInfoMap = classUnderTest.getAppInfoMap();
-
-        assertFalse(appInfoMap.isEmpty());
-        assertEquals(appInfoMap.entrySet().iterator().next().getValue(), appInfo);
+        appInfo.setVersion("1.0");
+        when(appInfoJpaRepository.findAll()).thenReturn(List.of(appInfo));
+        applicationInfoRepository.initialize();
+        assertEquals(appInfo, applicationInfoRepository.getApplicationInfo());
     }
 
+    @Test
+    void testInitializeWithEmptyList() {
+        when(appInfoJpaRepository.findAll()).thenReturn(Collections.emptyList());
+        applicationInfoRepository.initialize();
+        assertNull(applicationInfoRepository.getApplicationInfo());
+    }
 }

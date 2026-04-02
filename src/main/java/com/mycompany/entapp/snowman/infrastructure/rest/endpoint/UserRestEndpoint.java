@@ -1,53 +1,51 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2017 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.infrastructure.rest.endpoint;
 
 import com.mycompany.entapp.snowman.domain.model.User;
 import com.mycompany.entapp.snowman.domain.service.UserService;
 import com.mycompany.entapp.snowman.infrastructure.rest.mappers.UserResourceMapper;
 import com.mycompany.entapp.snowman.infrastructure.rest.resources.UserResource;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
-
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserRestEndpoint {
 
     @Autowired
     private UserService userService;
 
-    @RequestMapping(value = "/{userId}", method = RequestMethod.GET)
-    public ResponseEntity<UserResource> getUser(@PathVariable("userId") String userId) {
-        User user = userService.findUser(userId);
-        UserResource userResource = UserResourceMapper.mapUserToUserResource(user);
-        return ResponseEntity.ok(userResource);
+    @GetMapping("/{userId}")
+    public ResponseEntity<UserResource> getUser(@PathVariable int userId) {
+        User user = userService.getUser(userId);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(UserResourceMapper.mapUserToUserResource(user));
     }
 
-    @RequestMapping(value = "/create", method = RequestMethod.POST)
-    public ResponseEntity createNewUser(@Valid UserResource userResource) {
-        User user = UserResourceMapper.mapUserResourceToUser(userResource);
-        userService.createUser(user);
+    @PostMapping("/create")
+    public ResponseEntity<Void> createUser(@Valid @RequestBody UserResource userResource) {
+        userService.createUser(UserResourceMapper.mapUserResourceToUser(userResource));
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PostMapping("/update")
+    public ResponseEntity<Void> updateUser(@Valid @RequestBody UserResource userResource) {
+        userService.updateUser(UserResourceMapper.mapUserResourceToUser(userResource));
         return ResponseEntity.ok().build();
     }
 
-    @RequestMapping(value = "/update", method = RequestMethod.POST)
-    public ResponseEntity updateExistingUser(@Valid UserResource userResource){
-        User user = UserResourceMapper.mapUserResourceToUser(userResource);
-        userService.updateUser(user);
-        return ResponseEntity.ok().build();
-    }
-
-    @RequestMapping(value = "{userId}/delete", method = RequestMethod.DELETE)
-    public ResponseEntity deleteUser(@PathVariable Integer userId) {
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable int userId) {
         userService.deleteUser(userId);
         return ResponseEntity.ok().build();
     }
