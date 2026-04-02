@@ -19,7 +19,7 @@ class AppInfoRestEndpointITest {
 
     @Test
     void testGetAppInfo() {
-        ResponseEntity<AppInfoResource> response = restTemplate.getForEntity("/appinfo", AppInfoResource.class);
+        ResponseEntity<AppInfoResource> response = restTemplate.getForEntity("/app/info", AppInfoResource.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 

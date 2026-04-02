@@ -1,5 +1,6 @@
 package com.mycompany.entapp.snowman.infrastructure.rest.endpoint;
 
+import com.mycompany.entapp.snowman.domain.exception.SnowmanException;
 import com.mycompany.entapp.snowman.domain.model.Client;
 import com.mycompany.entapp.snowman.domain.service.ClientService;
 import com.mycompany.entapp.snowman.infrastructure.rest.mappers.ClientResourceMapper;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/clients")
+@RequestMapping("/client")
 public class ClientRestEndpoint {
 
     @Autowired
@@ -31,20 +32,20 @@ public class ClientRestEndpoint {
         return ResponseEntity.ok(ClientResourceMapper.mapToClientResource(client));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Void> createClient(@RequestBody ClientResource clientResource) {
+    @PostMapping("/new")
+    public ResponseEntity<Void> createClient(@RequestBody ClientResource clientResource) throws SnowmanException {
         clientService.createClient(ClientResourceMapper.mapToClient(clientResource));
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/update")
-    public ResponseEntity<Void> updateClient(@RequestBody ClientResource clientResource) {
+    public ResponseEntity<Void> updateClient(@RequestBody ClientResource clientResource) throws SnowmanException {
         clientService.updateClient(ClientResourceMapper.mapToClient(clientResource));
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{clientId}")
-    public ResponseEntity<Void> deleteClient(@PathVariable int clientId) {
+    public ResponseEntity<Void> deleteClient(@PathVariable int clientId) throws SnowmanException {
         clientService.deleteClient(clientId);
         return ResponseEntity.ok().build();
     }

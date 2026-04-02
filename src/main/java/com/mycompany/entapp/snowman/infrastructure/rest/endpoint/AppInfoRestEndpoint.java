@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/appinfo")
+@RequestMapping("/app")
 public class AppInfoRestEndpoint {
 
     @Autowired
     private ApplicationInfoService applicationInfoService;
 
-    @GetMapping
+    @GetMapping("/info")
     public ResponseEntity<AppInfoResource> getAppInfo() {
         AppInfo appInfo = applicationInfoService.getApplicationInfo();
         if (appInfo == null) {

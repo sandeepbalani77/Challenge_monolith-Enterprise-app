@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
 public class UserRestEndpoint {
 
     @Autowired
@@ -44,7 +44,7 @@ public class UserRestEndpoint {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/{userId}/delete")
     public ResponseEntity<Void> deleteUser(@PathVariable int userId) {
         userService.deleteUser(userId);
         return ResponseEntity.ok().build();

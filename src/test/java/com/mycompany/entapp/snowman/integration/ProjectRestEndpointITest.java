@@ -19,14 +19,14 @@ class ProjectRestEndpointITest {
 
     @Test
     void testGetProject() {
-        ResponseEntity<ProjectResource> response = restTemplate.getForEntity("/projects/1", ProjectResource.class);
+        ResponseEntity<ProjectResource> response = restTemplate.getForEntity("/project/1", ProjectResource.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
     }
 
     @Test
     void testGetProjectNotFound() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/projects/999", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("/project/999", String.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

@@ -22,20 +22,20 @@ class ClientRestEndpointITest {
         ClientResource clientResource = new ClientResource();
         clientResource.setClientId(100);
         clientResource.setClientName("Integration Test Client");
-        ResponseEntity<Void> response = restTemplate.postForEntity("/clients/create", clientResource, Void.class);
+        ResponseEntity<Void> response = restTemplate.postForEntity("/client/new", clientResource, Void.class);
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
     @Test
     void testDeleteClient() {
-        ResponseEntity<Void> deleteResponse = restTemplate.exchange("/clients/6",
+        ResponseEntity<Void> deleteResponse = restTemplate.exchange("/client/6",
             org.springframework.http.HttpMethod.DELETE, null, Void.class);
         assertEquals(HttpStatus.OK, deleteResponse.getStatusCode());
     }
 
     @Test
     void testGetClientNotFound() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/clients/999", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("/client/999", String.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

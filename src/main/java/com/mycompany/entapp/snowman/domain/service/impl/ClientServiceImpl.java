@@ -1,5 +1,6 @@
 package com.mycompany.entapp.snowman.domain.service.impl;
 
+import com.mycompany.entapp.snowman.domain.exception.SnowmanException;
 import com.mycompany.entapp.snowman.domain.model.Client;
 import com.mycompany.entapp.snowman.domain.model.Project;
 import com.mycompany.entapp.snowman.domain.repository.ClientRepository;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashSet;
@@ -29,6 +31,7 @@ public class ClientServiceImpl implements ClientService {
     private RestTemplate restTemplate;
 
     @Override
+    @Transactional(readOnly = true)
     public Client getClient(int clientId) {
         Client client = clientRepository.getClient(clientId);
 
@@ -67,17 +70,30 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    public void createClient(Client client) {
+    public void createClient(Client client) throws SnowmanException {
+        LOGGER.info("Creating client {}", client);
+        if (clientRepository.getClient(client.getId()) != null) {
+            throw new SnowmanException("Client already exists");
+        }
         clientRepository.createClient(client);
     }
 
     @Override
-    public void updateClient(Client client) {
+    public void updateClient(Client client) throws SnowmanException {
+        LOGGER.info("Updating client {}", client);
+        if (clientRepository.getClient(client.getId()) == null) {
+            throw new SnowmanException("Client doesn't exists");
+        }
         clientRepository.updateClient(client);
     }
 
     @Override
-    public void deleteClient(int clientId) {
+    public void deleteClient(int clientId) throws SnowmanException {
+        LOGGER.info("Deleting client with id {}", clientId);
+        if (clientRepository.getClient(clientId) == null) {
+            LOGGER.error("Trying to delete a client with id {} that doesn't exist", clientId);
+            throw new SnowmanException("Client doesn't exists");
+        }
         clientRepository.deleteClient(clientId);
     }
 }

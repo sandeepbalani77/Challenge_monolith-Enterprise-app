@@ -19,7 +19,7 @@ class EmployeeRestEndpointITest {
 
     @Test
     void testGetEmployeeById() {
-        ResponseEntity<EmployeeResource> response = restTemplate.getForEntity("/employees/1", EmployeeResource.class);
+        ResponseEntity<EmployeeResource> response = restTemplate.getForEntity("/employee/1", EmployeeResource.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertNotNull(response.getBody());
         assertEquals("Colin", response.getBody().getFirstName());
@@ -27,7 +27,7 @@ class EmployeeRestEndpointITest {
 
     @Test
     void testGetEmployeeNotFound() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/employees/999", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("/employee/999", String.class);
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }

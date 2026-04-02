@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/projects")
+@RequestMapping("/project")
 public class ProjectRestEndpoint {
 
     @Autowired
@@ -44,7 +44,7 @@ public class ProjectRestEndpoint {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{projectId}")
+    @DeleteMapping("/{projectId}/delete")
     public ResponseEntity<Void> deleteProject(@PathVariable int projectId) {
         projectService.deleteProject(projectId);
         return ResponseEntity.ok().build();

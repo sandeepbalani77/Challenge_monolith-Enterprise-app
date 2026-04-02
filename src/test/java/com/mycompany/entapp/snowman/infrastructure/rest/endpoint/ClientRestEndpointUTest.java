@@ -41,7 +41,7 @@ class ClientRestEndpointUTest {
     }
 
     @Test
-    void testCreateClient() {
+    void testCreateClient() throws Exception {
         ClientResource resource = new ClientResource();
         resource.setClientName("Test");
         ResponseEntity<Void> response = endpoint.createClient(resource);
@@ -49,7 +49,7 @@ class ClientRestEndpointUTest {
     }
 
     @Test
-    void testDeleteClient() {
+    void testDeleteClient() throws Exception {
         ResponseEntity<Void> response = endpoint.deleteClient(1);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         verify(clientService).deleteClient(1);

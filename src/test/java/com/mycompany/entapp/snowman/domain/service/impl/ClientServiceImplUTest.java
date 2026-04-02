@@ -1,5 +1,6 @@
 package com.mycompany.entapp.snowman.domain.service.impl;
 
+import com.mycompany.entapp.snowman.domain.exception.SnowmanException;
 import com.mycompany.entapp.snowman.domain.model.Client;
 import com.mycompany.entapp.snowman.domain.repository.ClientRepository;
 import org.junit.jupiter.api.Test;
@@ -36,24 +37,51 @@ class ClientServiceImplUTest {
     }
 
     @Test
-    void testCreateClient() {
+    void testCreateClient() throws Exception {
         Client client = new Client();
         client.setId(1);
+        when(clientRepository.getClient(1)).thenReturn(null);
         clientService.createClient(client);
         verify(clientRepository).createClient(client);
     }
 
     @Test
-    void testUpdateClient() {
+    void testCreateClientAlreadyExists() {
         Client client = new Client();
         client.setId(1);
+        when(clientRepository.getClient(1)).thenReturn(client);
+        assertThrows(SnowmanException.class, () -> clientService.createClient(client));
+    }
+
+    @Test
+    void testUpdateClient() throws Exception {
+        Client client = new Client();
+        client.setId(1);
+        when(clientRepository.getClient(1)).thenReturn(client);
         clientService.updateClient(client);
         verify(clientRepository).updateClient(client);
     }
 
     @Test
-    void testDeleteClient() {
+    void testUpdateClientNotFound() {
+        Client client = new Client();
+        client.setId(1);
+        when(clientRepository.getClient(1)).thenReturn(null);
+        assertThrows(SnowmanException.class, () -> clientService.updateClient(client));
+    }
+
+    @Test
+    void testDeleteClient() throws Exception {
+        Client client = new Client();
+        client.setId(1);
+        when(clientRepository.getClient(1)).thenReturn(client);
         clientService.deleteClient(1);
         verify(clientRepository).deleteClient(1);
+    }
+
+    @Test
+    void testDeleteClientNotFound() {
+        when(clientRepository.getClient(1)).thenReturn(null);
+        assertThrows(SnowmanException.class, () -> clientService.deleteClient(1));
     }
 }
