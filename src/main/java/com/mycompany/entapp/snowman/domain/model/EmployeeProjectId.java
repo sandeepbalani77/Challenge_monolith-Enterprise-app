@@ -1,8 +1,11 @@
 package com.mycompany.entapp.snowman.domain.model;
 
+import jakarta.persistence.Embeddable;
+
 import java.io.Serializable;
 import java.util.Objects;
 
+@Embeddable
 public class EmployeeProjectId implements Serializable {
 
     private int employee;

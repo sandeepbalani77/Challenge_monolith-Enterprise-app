@@ -36,6 +36,9 @@ public class ClientServiceImpl implements ClientService {
     @Transactional(readOnly = true)
     public Client getClient(int clientId) {
         Client client = clientRepository.getClient(clientId);
+        if (client == null) {
+            return null;
+        }
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(CLIENT_SYSTEM_BASE_URL + clientId, String.class);
