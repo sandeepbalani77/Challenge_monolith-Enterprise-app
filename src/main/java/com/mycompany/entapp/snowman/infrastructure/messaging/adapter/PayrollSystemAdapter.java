@@ -25,7 +25,7 @@ public class PayrollSystemAdapter implements PayrollSystemPort {
     public void sendEmployeeData(EmployeeDTO employeeDTO) {
         LOGGER.info("Sending employee data to Payroll System: {}", employeeDTO);
         payrollJmsTemplate.convertAndSend(employeeDTO, message -> {
-            message.setJMSCorrelationID("payroll-correlation-id");
+            message.setJMSCorrelationID("EmployeeId-" + employeeDTO.getId());
             message.setJMSDeliveryMode(DeliveryMode.PERSISTENT);
             message.setJMSExpiration(MESSAGE_EXPIRATION_IN_MS);
             message.setJMSPriority(5);

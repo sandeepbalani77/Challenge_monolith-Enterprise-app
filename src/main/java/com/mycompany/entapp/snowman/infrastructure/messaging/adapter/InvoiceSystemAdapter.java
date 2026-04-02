@@ -23,7 +23,7 @@ public class InvoiceSystemAdapter implements InvoiceSystemPort {
         LOGGER.info("Sending client data to Invoice System: {}", clientDTO);
         invoiceJmsTemplate.send(session -> {
             var message = session.createObjectMessage(clientDTO);
-            message.setJMSCorrelationID("invoice-correlation-id");
+            message.setJMSCorrelationID("ClientID-" + clientDTO.getClientId());
             return message;
         });
     }

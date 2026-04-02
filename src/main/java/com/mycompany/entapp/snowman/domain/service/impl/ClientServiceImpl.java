@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import org.hibernate.Hibernate;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -34,6 +36,9 @@ public class ClientServiceImpl implements ClientService {
     @Transactional(readOnly = true)
     public Client getClient(int clientId) {
         Client client = clientRepository.getClient(clientId);
+        if (client == null) {
+            return null;
+        }
 
         try {
             ResponseEntity<String> response = restTemplate.getForEntity(CLIENT_SYSTEM_BASE_URL + clientId, String.class);
@@ -50,6 +55,10 @@ public class ClientServiceImpl implements ClientService {
             } catch (Exception e) {
                 LOGGER.error("Retry to Client System also failed", e);
             }
+        }
+
+        if (client != null) {
+            Hibernate.initialize(client.getProjects());
         }
 
         return client;
