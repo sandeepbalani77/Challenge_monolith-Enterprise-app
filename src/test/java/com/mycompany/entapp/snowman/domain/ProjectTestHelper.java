@@ -1,24 +1,27 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain;
 
+import com.mycompany.entapp.snowman.domain.model.Client;
 import com.mycompany.entapp.snowman.domain.model.Project;
-import org.joda.time.DateTime;
+
+import java.time.LocalDate;
 
 public final class ProjectTestHelper {
 
-    private ProjectTestHelper(){
-    }
+    private ProjectTestHelper() {}
 
-    public static Project getProject() {
+    public static Project createTestProject() {
         Project project = new Project();
         project.setId(1);
-        project.setProjectTitle("Project");
-        project.setDateStarted(new DateTime(2018,1,1,12,0,0).toDate());
-        project.setDateEnded(new DateTime(2020,1,1,12,0,0).toDate());
+        project.setProjectTitle("Test Project");
+        project.setDateStarted(LocalDate.of(2017, 3, 15));
+        return project;
+    }
+
+    public static Project createTestProject(int id, String title) {
+        Project project = new Project();
+        project.setId(id);
+        project.setProjectTitle(title);
+        project.setDateStarted(LocalDate.of(2017, 3, 15));
         return project;
     }
 }

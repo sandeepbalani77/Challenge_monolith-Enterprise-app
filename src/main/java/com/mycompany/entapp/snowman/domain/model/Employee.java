@@ -1,56 +1,41 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2017 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Table(name = "employee")
 public class Employee {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "firstname", nullable = false)
     private String firstname;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "surname", nullable = false)
     private String surname;
 
-    @OneToOne
-    @JoinColumn(name = "employee_role_id", nullable = true) // should change this to false
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "employee_role_id", nullable = false)
     private EmployeeRole role;
 
-//    @ManyToMany(fetch = FetchType.LAZY)
-//    @JoinTable(name = "employee_project",
-//        joinColumns = {
-//            @JoinColumn(name = "employee_id", nullable = true, updatable = false)
-//        },
-//        inverseJoinColumns = {
-//            @JoinColumn(name = "project_id", nullable = true, updatable = false)
-//        }
-//    )
-//    private Set<Project> projects = new HashSet<>(0);
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "employee")
-    private Set<EmployeeProject> projects = new HashSet<>(0);
+    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY)
+    private Set<EmployeeProject> projects;
 
     public int getId() {
         return id;
@@ -84,14 +69,6 @@ public class Employee {
         this.role = role;
     }
 
-//    public Set<Project> getProjects() {
-//        return projects;
-//    }
-//
-//    public void setProjects(Set<Project> projects) {
-//        this.projects = projects;
-//    }
-
     public Set<EmployeeProject> getProjects() {
         return projects;
     }
@@ -102,21 +79,13 @@ public class Employee {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         Employee employee = (Employee) o;
-
         return new EqualsBuilder()
             .append(id, employee.id)
             .append(firstname, employee.firstname)
             .append(surname, employee.surname)
-            .append(role, employee.role)
             .isEquals();
     }
 
@@ -126,7 +95,6 @@ public class Employee {
             .append(id)
             .append(firstname)
             .append(surname)
-            .append(role)
             .toHashCode();
     }
 

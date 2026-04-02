@@ -1,22 +1,31 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2017 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.model;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "\"user\"")
 public class User {
 
+    @Id
+    @Column(name = "id")
     private int userId;
+
+    @Column(name = "username")
     private String username;
+
+    @Column(name = "password")
     private String password;
+
+    @Column(name = "email")
     private String email;
+
+    @Column(name = "firstname")
     private String firstname;
 
+    @Column(name = "secondname")
     private String lastname;
 
     public int getUserId() {
@@ -65,51 +74,5 @@ public class User {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        User user = (User) o;
-
-        return new EqualsBuilder()
-            .append(userId, user.userId)
-            .append(username, user.username)
-            .append(password, user.password)
-            .append(email, user.email)
-            .append(firstname, user.firstname)
-            .append(lastname, user.lastname)
-            .isEquals();
-    }
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37)
-            .append(userId)
-            .append(username)
-            .append(password)
-            .append(email)
-            .append(firstname)
-            .append(lastname)
-            .toHashCode();
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this)
-            .append("userId", userId)
-            .append("username", username)
-            .append("password", password)
-            .append("email", email)
-            .append("firstname", firstname)
-            .append("lastname", lastname)
-            .toString();
     }
 }

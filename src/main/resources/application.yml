@@ -1,0 +1,41 @@
+server:
+  port: 8090
+
+spring:
+  datasource:
+    url: jdbc:h2:mem:snowman;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  h2:
+    console:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    open-in-view: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=500,expireAfterWrite=600s
+    cache-names: clientFindCache
+  artemis:
+    mode: embedded
+    broker-url: vm://0
+  jms:
+    template:
+      default-destination: default-queue
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,caches,metrics
+
+logging:
+  level:
+    com.mycompany.entapp.snowman: DEBUG
+    org.hibernate.SQL: DEBUG

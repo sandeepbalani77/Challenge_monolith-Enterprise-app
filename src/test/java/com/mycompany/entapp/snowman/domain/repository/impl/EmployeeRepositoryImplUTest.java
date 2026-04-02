@@ -1,60 +1,52 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.repository.impl;
 
 import com.mycompany.entapp.snowman.domain.EmployeeTestHelper;
 import com.mycompany.entapp.snowman.domain.model.Employee;
-import com.mycompany.entapp.snowman.infrastructure.db.dao.EmployeeDao;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.mycompany.entapp.snowman.infrastructure.db.jpa.EmployeeJpaRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.*;
+import java.util.Optional;
 
-@RunWith(MockitoJUnitRunner.class)
-public class EmployeeRepositoryImplUTest {
-    private static final int EMPLOYEE_ID = 1;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class EmployeeRepositoryImplUTest {
 
     @Mock
-    private EmployeeDao employeeDao;
+    private EmployeeJpaRepository employeeJpaRepository;
 
     @InjectMocks
-    private EmployeeRepositoryImpl sut = new EmployeeRepositoryImpl();
+    private EmployeeRepositoryImpl employeeRepository;
 
     @Test
-    public void testFindEmployee(){
-        Employee employee = EmployeeTestHelper.getEmployee();
-
-        Mockito.when(employeeDao.retrieveEmployee(EMPLOYEE_ID)).thenReturn(employee);
-
-        Employee actualEmployee = sut.findEmployee(EMPLOYEE_ID);
-
-        assertEquals(employee, actualEmployee);
+    void testFindEmployee() {
+        Employee employee = EmployeeTestHelper.createTestEmployee();
+        when(employeeJpaRepository.findById(1)).thenReturn(Optional.of(employee));
+        Employee result = employeeRepository.findEmployee(1);
+        assertEquals(employee, result);
     }
 
     @Test
-    public void testSaveEmployee() {
-        Employee employee = EmployeeTestHelper.getEmployee();
-
-        Mockito.doNothing().when(employeeDao).saveEmployee(employee);
-
-        sut.saveEmployee(employee);
-
-        Mockito.verify(employeeDao, Mockito.times(1)).saveEmployee(employee);
+    void testFindEmployeeNotFound() {
+        when(employeeJpaRepository.findById(99)).thenReturn(Optional.empty());
+        assertNull(employeeRepository.findEmployee(99));
     }
 
     @Test
-    public void testRemoveEmployee() {
-        Mockito.doNothing().when(employeeDao).deleteEmployee(EMPLOYEE_ID);
+    void testSaveEmployee() {
+        Employee employee = EmployeeTestHelper.createTestEmployee();
+        employeeRepository.saveEmployee(employee);
+        verify(employeeJpaRepository).save(employee);
+    }
 
-        sut.removeEmployee(EMPLOYEE_ID);
-
-        Mockito.verify(employeeDao, Mockito.times(1)).deleteEmployee(EMPLOYEE_ID);
+    @Test
+    void testRemoveEmployee() {
+        employeeRepository.removeEmployee(1);
+        verify(employeeJpaRepository).deleteById(1);
     }
 }

@@ -1,8 +1,3 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.infrastructure.messaging.converter;
 
 import com.mycompany.entapp.snowman.domain.model.Employee;
@@ -35,8 +30,10 @@ public final class EmployeeDTOConverter {
     private static Set<Project> getProjectForEmployee(Employee employee) {
         Set<Project> projects = new HashSet<>();
         Set<EmployeeProject> employeeProjects = employee.getProjects();
-        for (EmployeeProject employeeProject : employeeProjects) {
-            projects.add(employeeProject.getProject());
+        if (employeeProjects != null) {
+            for (EmployeeProject employeeProject : employeeProjects) {
+                projects.add(employeeProject.getProject());
+            }
         }
         return projects;
     }

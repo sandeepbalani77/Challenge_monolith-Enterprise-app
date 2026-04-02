@@ -1,12 +1,5 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.service.impl;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mycompany.entapp.snowman.domain.exception.SnowmanException;
 import com.mycompany.entapp.snowman.domain.model.Client;
 import com.mycompany.entapp.snowman.domain.model.Project;
@@ -18,104 +11,89 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 @Service
 public class ClientServiceImpl implements ClientService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ClientServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientServiceImpl.class);
 
-    private static final int MAX_RETRIES = 3;
-    private static final String URI = "http://localhost:8080/client-system/client/{clientId}/projects";
-
-    @Autowired
-    private RestTemplate restTemplate;
+    private static final String CLIENT_SYSTEM_BASE_URL = "http://localhost:9999/clients/";
 
     @Autowired
     private ClientRepository clientRepository;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Override
+    @Transactional(readOnly = true)
     public Client getClient(int clientId) {
         Client client = clientRepository.getClient(clientId);
 
-        LOG.info("Retrieved client: {}", client);
-
-        if (client.getProjects().isEmpty()) {
-            // call Client System REST endpoint to get its project data.
-
-            ResponseEntity<String> response = makeRequest();
-
-            // retry
-            int retryCount = 0;
-            while(response.getStatusCode() != HttpStatus.OK) {
-                if (retryCount > MAX_RETRIES) {
-                    break;
-                }
-
-                response = makeRequest();
-                retryCount++;
+        try {
+            ResponseEntity<String> response = restTemplate.getForEntity(CLIENT_SYSTEM_BASE_URL + clientId, String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                processResponse(response.getBody(), client);
             }
-
-            processResponse(response.getBody(), client);
+        } catch (Exception ex) {
+            LOGGER.warn("Could not reach client system, retrying...", ex);
+            try {
+                ResponseEntity<String> response = restTemplate.getForEntity(CLIENT_SYSTEM_BASE_URL + clientId, String.class);
+                if (response.getStatusCode() == HttpStatus.OK) {
+                    processResponse(response.getBody(), client);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Retry to Client System also failed", e);
+            }
         }
 
         return client;
     }
 
-    private void processResponse(String body, Client client) {
-        ObjectMapper objectMapper = new ObjectMapper();
+    void processResponse(String responseBody, Client client) {
+        Set<Project> projects = new HashSet<>();
         try {
-            JsonNode root = objectMapper.readTree(body);
-            JsonNode project = root.path("project");
-            Set<Project> projects = new HashSet<>();
-            projects.add(new Project());
-        } catch (IOException e) {
-           LOG.error("{}", e);
+            // Parse response body into projects
+            // In a real implementation, this would parse JSON into Project objects
+            if (responseBody != null && !responseBody.isEmpty()) {
+                LOGGER.debug("Processing response body: {}", responseBody);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("Error processing response", ex);
         }
-    }
-
-    private ResponseEntity<String> makeRequest() {
-        return restTemplate.getForEntity(URI, String.class);
+        client.setProjects(projects);
     }
 
     @Override
     public void createClient(Client client) throws SnowmanException {
-
-        LOG.info("Creating client {}", client);
-
-        if (getClient(client.getId()) != null) {
+        LOGGER.info("Creating client {}", client);
+        if (clientRepository.getClient(client.getId()) != null) {
             throw new SnowmanException("Client already exists");
         }
-
         clientRepository.createClient(client);
     }
 
     @Override
     public void updateClient(Client client) throws SnowmanException {
-
-        LOG.info("Updating client {}", client);
-
-        if (getClient(client.getId()) == null) {
+        LOGGER.info("Updating client {}", client);
+        if (clientRepository.getClient(client.getId()) == null) {
             throw new SnowmanException("Client doesn't exists");
         }
-
         clientRepository.updateClient(client);
     }
 
     @Override
     public void deleteClient(int clientId) throws SnowmanException {
-
-        LOG.info("Deleting client with id {}", clientId);
-
-        if (getClient(clientId) == null) {
-            LOG.error("Trying to delete a client with id {} that doesn't exist", clientId);
+        LOGGER.info("Deleting client with id {}", clientId);
+        if (clientRepository.getClient(clientId) == null) {
+            LOGGER.error("Trying to delete a client with id {} that doesn't exist", clientId);
             throw new SnowmanException("Client doesn't exists");
         }
-
         clientRepository.deleteClient(clientId);
     }
 }

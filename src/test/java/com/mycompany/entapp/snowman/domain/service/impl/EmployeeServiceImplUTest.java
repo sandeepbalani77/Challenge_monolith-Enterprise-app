@@ -1,93 +1,67 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.service.impl;
 
 import com.mycompany.entapp.snowman.domain.EmployeeTestHelper;
 import com.mycompany.entapp.snowman.domain.model.Employee;
 import com.mycompany.entapp.snowman.domain.repository.EmployeeRepository;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class EmployeeServiceImplUTest {
-
-    private static final int EMPLOYEE_ID = 3;
+@ExtendWith(MockitoExtension.class)
+class EmployeeServiceImplUTest {
 
     @Mock
     private EmployeeRepository employeeRepository;
 
     @InjectMocks
-    private EmployeeServiceImpl classUnderTest = new EmployeeServiceImpl();
+    private EmployeeServiceImpl employeeService;
 
     @Test
-    public void testGetEmployee(){
-        Employee employee = EmployeeTestHelper.getEmployee();
-
-        Mockito.when(employeeRepository.findEmployee(EMPLOYEE_ID)).thenReturn(employee);
-
-        Employee actualEmployee = classUnderTest.getEmployee(EMPLOYEE_ID);
-
-        assertEquals(employee, actualEmployee);
-        Mockito.verify(employeeRepository, Mockito.times(1)).findEmployee(EMPLOYEE_ID);
+    void testGetEmployee() {
+        Employee employee = EmployeeTestHelper.createTestEmployee();
+        when(employeeRepository.findEmployee(1)).thenReturn(employee);
+        Employee result = employeeService.getEmployee(1);
+        assertEquals(employee, result);
     }
 
     @Test
-    public void testCreateEmployee() {
-        Employee employee = EmployeeTestHelper.getEmployee();
-
-        Mockito.doNothing().when(employeeRepository).saveEmployee(employee);
-
-        classUnderTest.createEmployee(employee);
-
-        Mockito.verify(employeeRepository, Mockito.times(1)).saveEmployee(employee);
+    void testCreateEmployee() {
+        Employee employee = EmployeeTestHelper.createTestEmployee();
+        employeeService.createEmployee(employee);
+        verify(employeeRepository).saveEmployee(employee);
     }
 
     @Test
-    public void testUpdateEmployeeShouldUpdateEmployee() {
-        Employee employee = EmployeeTestHelper.getEmployee();
-
-        Mockito.when(employeeRepository.findEmployee(EMPLOYEE_ID)).thenReturn(employee);
-        Mockito.doNothing().when(employeeRepository).saveEmployee(employee);
-
-        classUnderTest.updateEmployee(employee);
-
-        Mockito.verify(employeeRepository, Mockito.times(1)).findEmployee(EMPLOYEE_ID);
-        Mockito.verify(employeeRepository, Mockito.times(1)).saveEmployee(employee);
-
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testUpdateEmployeeShouldThrowExceptionWhenNoExistingEmployeeFound() {
-        Mockito.when(employeeRepository.findEmployee(EMPLOYEE_ID)).thenReturn(null);
-        classUnderTest.updateEmployee(new Employee());
+    void testUpdateEmployee() {
+        Employee employee = EmployeeTestHelper.createTestEmployee();
+        when(employeeRepository.findEmployee(employee.getId())).thenReturn(employee);
+        employeeService.updateEmployee(employee);
+        verify(employeeRepository).saveEmployee(employee);
     }
 
     @Test
-    public void testDeleteEmployeeShouldDeleteEmployee() {
-        Employee employee = EmployeeTestHelper.getEmployee();
-
-        Mockito.when(employeeRepository.findEmployee(EMPLOYEE_ID)).thenReturn(employee);
-        Mockito.doNothing().when(employeeRepository).removeEmployee(EMPLOYEE_ID);
-
-        classUnderTest.deleteEmployee(EMPLOYEE_ID);
-
-        Mockito.verify(employeeRepository, Mockito.times(1)).findEmployee(EMPLOYEE_ID);
-        Mockito.verify(employeeRepository, Mockito.times(1)).removeEmployee(EMPLOYEE_ID);
+    void testUpdateEmployeeShouldThrowExceptionWhenNoExistingEmployeeFound() {
+        Employee employee = EmployeeTestHelper.createTestEmployee();
+        when(employeeRepository.findEmployee(employee.getId())).thenReturn(null);
+        assertThrows(RuntimeException.class, () -> employeeService.updateEmployee(employee));
     }
 
     @Test
-    public void testDeleteEmployeeShouldThrowExceptionWhenNoExistingEmployeeFound() {
-        Mockito.when(employeeRepository.findEmployee(EMPLOYEE_ID)).thenReturn(null);
-        classUnderTest.deleteEmployee(EMPLOYEE_ID);
+    void testDeleteEmployee() {
+        Employee employee = EmployeeTestHelper.createTestEmployee();
+        when(employeeRepository.findEmployee(1)).thenReturn(employee);
+        employeeService.deleteEmployee(1);
+        verify(employeeRepository).removeEmployee(1);
     }
 
+    @Test
+    void testDeleteEmployeeShouldThrowExceptionWhenNoExistingEmployeeFound() {
+        when(employeeRepository.findEmployee(1)).thenReturn(null);
+        assertThrows(RuntimeException.class, () -> employeeService.deleteEmployee(1));
+    }
 }

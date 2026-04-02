@@ -1,42 +1,39 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2017 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "employee_project")
-public class EmployeeProject implements Serializable {
+@IdClass(EmployeeProjectId.class)
+public class EmployeeProject {
 
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "employee_id")
     private Employee employee;
 
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "project_id")
     private Project project;
 
     @Column(name = "date_started")
-    private Date dateStarted;
+    private LocalDate dateStarted;
 
     @Column(name = "date_ended")
-    private Date dateEnded;
+    private LocalDate dateEnded;
 
     public Employee getEmployee() {
         return employee;
@@ -54,39 +51,30 @@ public class EmployeeProject implements Serializable {
         this.project = project;
     }
 
-    public Date getDateStarted() {
+    public LocalDate getDateStarted() {
         return dateStarted;
     }
 
-    public void setDateStarted(Date dateStarted) {
+    public void setDateStarted(LocalDate dateStarted) {
         this.dateStarted = dateStarted;
     }
 
-    public Date getDateEnded() {
+    public LocalDate getDateEnded() {
         return dateEnded;
     }
 
-    public void setDateEnded(Date dateEnded) {
+    public void setDateEnded(LocalDate dateEnded) {
         this.dateEnded = dateEnded;
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         EmployeeProject that = (EmployeeProject) o;
-
         return new EqualsBuilder()
             .append(employee, that.employee)
             .append(project, that.project)
-            .append(dateStarted, that.dateStarted)
-            .append(dateEnded, that.dateEnded)
             .isEquals();
     }
 
@@ -95,16 +83,12 @@ public class EmployeeProject implements Serializable {
         return new HashCodeBuilder(17, 37)
             .append(employee)
             .append(project)
-            .append(dateStarted)
-            .append(dateEnded)
             .toHashCode();
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-            .append("employee", employee)
-            .append("project", project)
             .append("dateStarted", dateStarted)
             .append("dateEnded", dateEnded)
             .toString();

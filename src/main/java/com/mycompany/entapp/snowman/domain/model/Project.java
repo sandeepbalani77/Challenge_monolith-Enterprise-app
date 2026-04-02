@@ -1,52 +1,45 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2017 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import java.util.Date;
-import java.util.HashSet;
+import java.time.LocalDate;
 import java.util.Set;
 
 @Entity
+@Table(name = "project")
 public class Project {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name = "project_title", nullable = false, length = 20)
+    @Column(name = "project_title", nullable = false)
     private String projectTitle;
 
     @Column(name = "date_started", nullable = false)
-    private Date dateStarted;
+    private LocalDate dateStarted;
 
     @Column(name = "date_ended")
-    private Date dateEnded;
+    private LocalDate dateEnded;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
-    //@ManyToMany(fetch = FetchType.LAZY, mappedBy = "projects")
-    //private Set<Employee> employees = new HashSet<>(0);
-
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "project")
-    private Set<EmployeeProject> employeeProjects = new HashSet<>(0);
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY)
+    private Set<EmployeeProject> employeeProjects;
 
     public int getId() {
         return id;
@@ -64,19 +57,19 @@ public class Project {
         this.projectTitle = projectTitle;
     }
 
-    public Date getDateStarted() {
+    public LocalDate getDateStarted() {
         return dateStarted;
     }
 
-    public void setDateStarted(Date dateStarted) {
+    public void setDateStarted(LocalDate dateStarted) {
         this.dateStarted = dateStarted;
     }
 
-    public Date getDateEnded() {
+    public LocalDate getDateEnded() {
         return dateEnded;
     }
 
-    public void setDateEnded(Date dateEnded) {
+    public void setDateEnded(LocalDate dateEnded) {
         this.dateEnded = dateEnded;
     }
 
@@ -88,14 +81,6 @@ public class Project {
         this.client = client;
     }
 
-//    public Set<Employee> getEmployees() {
-//        return employees;
-//    }
-//
-//    public void setEmployees(Set<Employee> employees) {
-//        this.employees = employees;
-//    }
-
     public Set<EmployeeProject> getEmployeeProjects() {
         return employeeProjects;
     }
@@ -106,22 +91,12 @@ public class Project {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         Project project = (Project) o;
-
         return new EqualsBuilder()
             .append(id, project.id)
             .append(projectTitle, project.projectTitle)
-            .append(dateStarted, project.dateStarted)
-            .append(dateEnded, project.dateEnded)
-            .append(client, project.client)
             .isEquals();
     }
 
@@ -130,9 +105,6 @@ public class Project {
         return new HashCodeBuilder(17, 37)
             .append(id)
             .append(projectTitle)
-            .append(dateStarted)
-            .append(dateEnded)
-            .append(client)
             .toHashCode();
     }
 
@@ -143,7 +115,6 @@ public class Project {
             .append("projectTitle", projectTitle)
             .append("dateStarted", dateStarted)
             .append("dateEnded", dateEnded)
-            .append("client", client)
             .toString();
     }
 }

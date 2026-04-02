@@ -1,8 +1,3 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.infrastructure.messaging.adapter;
 
 import com.mycompany.entapp.snowman.infrastructure.messaging.NotificationPort;
@@ -20,11 +15,11 @@ public class NotificationAdapter implements NotificationPort {
 
     @Autowired
     @Qualifier("notificationJmsTemplate")
-    private JmsTemplate jmsTemplate;
+    private JmsTemplate notificationJmsTemplate;
 
     @Override
-    public void broadcastUpdates(Object object) {
-        LOGGER.info("Sending object {} as update notification");
-        jmsTemplate.convertAndSend(object);
+    public void sendUpdateNotification(Object object) {
+        LOGGER.info("Sending object {} as update notification", object);
+        notificationJmsTemplate.convertAndSend(object);
     }
 }

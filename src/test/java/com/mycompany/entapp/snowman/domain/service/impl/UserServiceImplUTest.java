@@ -1,93 +1,52 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2017 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.service.impl;
 
 import com.mycompany.entapp.snowman.domain.model.User;
-import com.mycompany.entapp.snowman.infrastructure.db.dao.UserDao;
-import com.mycompany.entapp.snowman.domain.service.UserService;
-import com.mycompany.entapp.snowman.infrastructure.rest.mappers.UserResourceMapper;
-import com.mycompany.entapp.snowman.infrastructure.rest.resources.UserResource;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.mycompany.entapp.snowman.domain.repository.UserRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-@RunWith(MockitoJUnitRunner.class)
-public class UserServiceImplUTest {
+@ExtendWith(MockitoExtension.class)
+class UserServiceImplUTest {
 
     @Mock
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @InjectMocks
-    private UserService userService = new UserServiceImpl();
+    private UserServiceImpl userService;
 
     @Test
-    public void testUserServiceFindUserShouldReturnUserFromDao() {
-
-        int userId = 9;
-
-        User user = getUser(userId);
-
-        Mockito.when(userDao.findUser(userId)).thenReturn(user);
-
-        User actualUser = userService.findUser("9");
-
-        assertEquals(user, actualUser);
-        Mockito.verify(userDao, Mockito.times(1)).findUser(userId);
-    }
-    @Test
-    public void testCreateNewUser() {
-        User user = getUser(1);
-
-        Mockito.doNothing().when(userDao).saveUser(user);
-
-        userService.createUser(user);
-
-        Mockito.verify(userDao, Mockito.times(1)).saveUser(user);
-    }
-
-    @Test
-    public void testUpdateUser() {
-        User user = getUser(1);
-
-        Mockito.doNothing().when(userDao).saveUser(user);
-
-        userService.createUser(user);
-
-        Mockito.verify(userDao, Mockito.times(1)).saveUser(user);
-    }
-
-    @Test
-    public void testDeleteUser(){
-        int userId = 1;
-        User user = getUser(1);
-
-        Mockito.doNothing().when(userDao).removeUser(userId);
-
-        userService.deleteUser(userId);
-
-        Mockito.verify(userService, Mockito.times(1)).deleteUser(userId);
-    }
-
-    private User getUser(int userId) {
+    void testGetUser() {
         User user = new User();
-        user.setUserId(userId);
-        user.setUsername("UserName");
-        user.setPassword("Password");
-        user.setEmail("Email");
-        user.setFirstname("Firstname");
-        user.setLastname("Lastname");
-        return user;
+        user.setUserId(1);
+        user.setUsername("testuser");
+        when(userRepository.findUser(1)).thenReturn(user);
+        User result = userService.getUser(1);
+        assertEquals("testuser", result.getUsername());
     }
 
+    @Test
+    void testCreateUser() {
+        User user = new User();
+        userService.createUser(user);
+        verify(userRepository).saveUser(user);
+    }
+
+    @Test
+    void testUpdateUser() {
+        User user = new User();
+        userService.updateUser(user);
+        verify(userRepository).saveUser(user);
+    }
+
+    @Test
+    void testDeleteUser() {
+        userService.deleteUser(1);
+        verify(userRepository).removeUser(1);
+    }
 }

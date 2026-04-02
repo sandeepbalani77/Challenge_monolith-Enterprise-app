@@ -1,69 +1,51 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2018 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.repository.impl;
 
 import com.mycompany.entapp.snowman.domain.ProjectTestHelper;
 import com.mycompany.entapp.snowman.domain.model.Project;
-import com.mycompany.entapp.snowman.infrastructure.db.dao.ProjectDao;
-import org.joda.time.DateTime;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import com.mycompany.entapp.snowman.infrastructure.db.jpa.ProjectJpaRepository;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.Assert.*;
+import java.util.Optional;
 
-@RunWith(MockitoJUnitRunner.class)
-public class ProjectRepositoryImplUTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-    private static final int PROJECT_ID = 1;
+@ExtendWith(MockitoExtension.class)
+class ProjectRepositoryImplUTest {
 
     @Mock
-    private ProjectDao projectDao;
+    private ProjectJpaRepository projectJpaRepository;
 
     @InjectMocks
-    private ProjectRepositoryImpl classUnderTest = new ProjectRepositoryImpl();
+    private ProjectRepositoryImpl projectRepository;
 
     @Test
-    public void giveProjectId_whenFindProject_thenReturnProjectWithThatProjectId() {
-
-
-        Project project = ProjectTestHelper.getProject();
-
-        Mockito.when(projectDao.retrieveProject(PROJECT_ID)).thenReturn(project);
-
-        Project actualProject = classUnderTest.findProject(PROJECT_ID);
-
-        Mockito.verify(projectDao, Mockito.times(1)).retrieveProject(PROJECT_ID);
-
-        assertEquals(project, actualProject);
+    void testFindProject() {
+        Project project = ProjectTestHelper.createTestProject();
+        when(projectJpaRepository.findById(1)).thenReturn(Optional.of(project));
+        assertEquals(project, projectRepository.findProject(1));
     }
 
     @Test
-    public void givenProject_whenSaveProject_thenPersistProject() {
-        Project project = ProjectTestHelper.getProject();
-
-        Mockito.doNothing().when(projectDao).saveProject(project);
-
-        classUnderTest.saveProject(project);
-
-        Mockito.verify(projectDao, Mockito.times(1)).saveProject(project);
+    void testFindProjectNotFound() {
+        when(projectJpaRepository.findById(99)).thenReturn(Optional.empty());
+        assertNull(projectRepository.findProject(99));
     }
 
     @Test
-    public void givenProjectId_whenRemoveProject_thenDeleteProject() {
-        Mockito.doNothing().when(projectDao).removeProject(PROJECT_ID);
-
-        classUnderTest.removeProject(PROJECT_ID);
-
-        Mockito.verify(projectDao, Mockito.times(1)).removeProject(PROJECT_ID);
+    void testSaveProject() {
+        Project project = ProjectTestHelper.createTestProject();
+        projectRepository.saveProject(project);
+        verify(projectJpaRepository).save(project);
     }
 
-
-
+    @Test
+    void testRemoveProject() {
+        projectRepository.removeProject(1);
+        verify(projectJpaRepository).deleteById(1);
+    }
 }

@@ -1,12 +1,7 @@
-/*
- * |-------------------------------------------------
- * | Copyright © 2017 Colin But. All rights reserved.
- * |-------------------------------------------------
- */
 package com.mycompany.entapp.snowman.domain.service.impl;
 
-import com.mycompany.entapp.snowman.infrastructure.db.dao.UserDao;
 import com.mycompany.entapp.snowman.domain.model.User;
+import com.mycompany.entapp.snowman.domain.repository.UserRepository;
 import com.mycompany.entapp.snowman.domain.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,26 +10,25 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    private UserDao userDao;
+    private UserRepository userRepository;
 
     @Override
-    public User findUser(String userId) {
-        return userDao.findUser(Integer.parseInt(userId));
+    public User getUser(int userId) {
+        return userRepository.findUser(userId);
     }
 
     @Override
-    public void createUser(User user){
-        userDao.saveUser(user);
+    public void createUser(User user) {
+        userRepository.saveUser(user);
     }
 
     @Override
-    public void updateUser(User user){
-        userDao.saveUser(user);
+    public void updateUser(User user) {
+        userRepository.saveUser(user);
     }
 
     @Override
     public void deleteUser(int userId) {
-        userDao.removeUser(userId);
+        userRepository.removeUser(userId);
     }
-
 }
